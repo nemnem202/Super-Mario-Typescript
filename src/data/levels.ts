@@ -1149,10 +1149,29 @@ export const levels: level[] = [
         position: { x: 10, y: 10 },
         spawnFromPosition: 0,
         path: {
-          startPosition: { x: 10, y: 5 },
-          endPosition: { x: 10, y: 14 },
+          startPosition: { x: 55, y: 6 },
+          endPosition: { x: 55, y: 10 },
         },
       },
+      {
+        type: "platform",
+        position: { x: 10, y: 10 },
+        spawnFromPosition: 0,
+        path: {
+          startPosition: { x: 83, y: 8 },
+          endPosition: { x: 89, y: 8 },
+        },
+      },
+      {
+        type: "platform",
+        position: { x: 10, y: 10 },
+        spawnFromPosition: 0,
+        path: {
+          startPosition: { x: 92, y: 9 },
+          endPosition: { x: 98, y: 9 },
+        },
+      },
+
       {
         type: "flyingTurtle",
         position: {

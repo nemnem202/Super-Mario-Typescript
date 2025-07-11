@@ -1059,13 +1059,22 @@ export class PositionSystem {
 
       if (path.startPosition.x === path.endPosition.x) {
         velocity.horizontal = 0;
+        console.log("oeoe");
       } else {
-        if (position.x < path.endPosition.x) {
-          velocity.horizontal = Math.abs(velocity.horizontal);
-        } else if (position.x > path.startPosition.x) {
-          velocity.horizontal = -Math.abs(velocity.horizontal);
+        console.log("nono");
+        if (position.x > path.endPosition.x) {
+          velocity.horizontal += stats.sidesSpeed;
+        } else if (position.x <= path.startPosition.x) {
+          velocity.horizontal -= stats.sidesSpeed;
+        } else if (velocity.horizontal > 0 && velocity.horizontal < stats.maxHorizontalVelocity) {
+          velocity.horizontal += stats.sidesSpeed;
+        } else if (velocity.horizontal < 0 && velocity.horizontal > -stats.maxHorizontalVelocity) {
+          velocity.horizontal -= stats.sidesSpeed;
+        } else {
+          velocity.horizontal *= 0.8;
         }
       }
+
       if (path.startPosition.y === path.endPosition.y) {
         velocity.vertical = 0;
       } else {

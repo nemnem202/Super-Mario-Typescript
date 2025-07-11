@@ -296,8 +296,6 @@ export class GameMap {
     this.displayDirectionnalButtons();
     this.showScoreAndTime(this.game.score);
     this.displaySoundButton();
-    // this.showGrid();
-    // this.showHitboxes();
   }
 
   public createPause() {
