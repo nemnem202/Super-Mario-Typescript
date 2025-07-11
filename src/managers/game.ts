@@ -484,6 +484,14 @@ fill="white"/>
       this.game.commands.left = false;
     });
 
+    this.leftButton.addEventListener("touchstart", () => {
+      this.game.commands.left = true;
+    });
+
+    this.leftButton.addEventListener("touchend", () => {
+      this.game.commands.left = false;
+    });
+
     this.leftButton.innerHTML = `   <svg
   width="50"
   height="50"
@@ -508,6 +516,14 @@ fill="white"/>
       this.game.commands.right = false;
     });
     this.rightButton.addEventListener("mouseleave", () => {
+      this.game.commands.right = false;
+    });
+
+    this.rightButton.addEventListener("touchstart", () => {
+      this.game.commands.right = true;
+    });
+
+    this.rightButton.addEventListener("touchend", () => {
       this.game.commands.right = false;
     });
 
@@ -537,6 +553,15 @@ fill="white"/>
     this.jumpButton.addEventListener("mouseleave", () => {
       this.game.commands.jump = false;
     });
+
+    this.jumpButton.addEventListener("touchstart", () => {
+      this.game.commands.jump = true;
+    });
+
+    this.jumpButton.addEventListener("touchend", () => {
+      this.game.commands.jump = false;
+    });
+
     this.jumpButton.innerHTML = `
 <svg
   width="50"
