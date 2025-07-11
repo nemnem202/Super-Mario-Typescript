@@ -99,4 +99,12 @@ export class SoundManager {
   public getVolume(): number {
     return this._volume;
   }
+
+  public playSound(audio: HTMLAudioElement) {
+    audio.pause();
+    audio.currentTime = 0;
+    audio.play().catch((e) => {
+      console.warn("Erreur lors de la lecture audio :", e);
+    });
+  }
 }

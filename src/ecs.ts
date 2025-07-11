@@ -206,7 +206,7 @@ export class InputSystem {
         jumpState.jumpTime < movementStats.maxJumpTime
       ) {
         if (jumpState.jumpTime === 0) {
-          SoundManager.getInstance().jump.play();
+          SoundManager.getInstance().playSound(SoundManager.getInstance().jump);
         }
         jumpState.isJumping = true;
         jumpState.jumpTime++;
