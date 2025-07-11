@@ -687,7 +687,7 @@ fill="white"/>
   centerCamera = (): void => {
     const mario = document.getElementsByClassName("mario")[0];
     mario?.scrollIntoView({
-      behavior: "smooth",
+      behavior: "auto",
       block: "end",
       inline: "center",
     });
