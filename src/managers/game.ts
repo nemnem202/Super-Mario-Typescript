@@ -423,7 +423,7 @@ fill="white"/>
     img.className = "coin";
     img.className = "brick";
     img.style.position = "absolute";
-    img.style.transition = "transform 0.5s ease-out";
+    img.style.transition = "transform 0.3s ease-out";
     img.style.transform = "translateY(0px)";
     img.style.zIndex = "200";
     img.style.top = `${
@@ -440,12 +440,12 @@ fill="white"/>
     document.body.appendChild(img);
 
     requestAnimationFrame(() => {
-      img.style.transform = "translateY(-30px)";
+      img.style.transform = "translateY(-30px) scaleX(-1)";
     });
 
     setTimeout(() => {
       img.remove();
-    }, 500);
+    }, 400);
   };
 
   private showMap = async (): Promise<void> => {
