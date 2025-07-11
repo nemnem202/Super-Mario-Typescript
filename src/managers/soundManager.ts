@@ -48,6 +48,7 @@ export class SoundManager {
       this.music.volume = this._volume;
       this.music.play();
     } else if (this.music.paused) {
+      this.music.src = src;
       this.music.play();
     }
   }
@@ -61,6 +62,7 @@ export class SoundManager {
   public resetMusic(src: string) {
     if (this.music) {
       this.music.currentTime = 0;
+      this.music.src = src;
       this.music.play();
     } else {
       this.playMusic(src);
