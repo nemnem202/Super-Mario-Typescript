@@ -94,4 +94,9 @@ export const sprites: spriteObject[] = [
       "/sprites/marioBigShooter/walking-3.png",
     ],
   },
+  {
+    name: "platform",
+    default: "/sprites/platform/default.png",
+    dead: "/sprites/platform/default.png",
+  },
 ];

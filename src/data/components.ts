@@ -207,3 +207,5 @@ export class TheWallsAreLava {}
 export class Shooter {}
 
 export class Flying {}
+
+export class Platform {}

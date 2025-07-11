@@ -1145,12 +1145,22 @@ export const levels: level[] = [
     ascencor: [],
     entities: [
       {
+        type: "platform",
+        position: { x: 10, y: 10 },
+        spawnFromPosition: 0,
+        path: {
+          startPosition: { x: 10, y: 5 },
+          endPosition: { x: 10, y: 14 },
+        },
+      },
+      {
         type: "flyingTurtle",
         position: {
           x: 5,
           y: 12,
         },
         spawnFromPosition: 0,
+        path: { startPosition: { x: 38.5, y: 0 }, endPosition: { x: 38.5, y: 3 } },
       },
     ],
   },

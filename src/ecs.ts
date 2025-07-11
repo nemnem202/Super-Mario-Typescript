@@ -16,6 +16,7 @@ import {
   MovementStatsComponent,
   PathComponent,
   PhysicsBodyComponent,
+  Platform,
   PlayableComponent,
   PnjComponent,
   PositionComponent,
@@ -168,11 +169,12 @@ export class InputSystem {
       HealthComponent,
       VelocityComponent
     )) {
+      if (entity.hasComponent(Flying)) continue;
       const inputs = entity.getComponent(InputStateComponent);
       const velocity = entity.getComponent(VelocityComponent);
       const movementStats = entity.getComponent(MovementStatsComponent);
       const inAir = entity.getComponent(AnimationStateComponent).inAir;
-      if (!entity.getComponent(HealthComponent).isAlive()) continue;
+      // if (!entity.getComponent(HealthComponent).isAlive()) continue;
 
       if (inputs.left && velocity.horizontal < movementStats.maxHorizontalVelocity) {
         if (inAir) {
@@ -256,15 +258,17 @@ export class SpawnSystem {
       this.level.entities.forEach((e) => {
         if (e.spawnFromPosition <= position.x) {
           this.level.entities = this.level.entities.filter((ent) => ent !== e);
-          if (entity.hasComponent(PathComponent)) {
-            const p = entity.getComponent(PathComponent);
-            this.entitySystem.createEntity(e.type, {
-              position: { x: p.startPosition.x, y: p.startPosition.y },
-            });
-          } else {
-            this.entitySystem.createEntity(e.type, {
-              position: { x: e.position.x, y: e.position.y },
-            });
+          const monster = this.entitySystem.createEntity(e.type, {
+            position: { x: e.position.x, y: e.position.y },
+          });
+          if (monster.hasComponent(PathComponent) && e.path) {
+            const p = monster.getComponent(PathComponent);
+
+            const position = monster.getComponent(PositionComponent);
+            p.startPosition = e.path.startPosition;
+            p.endPosition = e.path.endPosition;
+            position.x = e.path.startPosition.x;
+            position.y = e.path.startPosition.y;
           }
         }
       });
@@ -318,6 +322,7 @@ export class CollisionSystem {
   }
 
   update() {
+    this.playerToPlatformCollision();
     this.playerCollision();
     this.pnjCollisions();
     this.monsterToMonsterCollision();
@@ -486,6 +491,39 @@ export class CollisionSystem {
           this.isBlockAt(nextPosition.x + 0.5, position.y, 0, dimensions.width)
         ) {
           velocity.horizontal = 0;
+        }
+      }
+    }
+  }
+
+  private playerToPlatformCollision() {
+    for (const entity of this.entitySystem.getEntitiesWithComponents(
+      PlayableComponent,
+      CollidableComponent
+    )) {
+      const position = entity.getComponent(PositionComponent);
+      const velocity = entity.getComponent(VelocityComponent);
+      const dimensions = entity.getComponent(PhysicsBodyComponent);
+      const animation = entity.getComponent(AnimationStateComponent);
+      const jumpState = entity.getComponent(JumpStateComponent);
+      const commands = entity.getComponent(InputStateComponent);
+
+      let nextPosition = {
+        x: position.x - velocity.horizontal / 100,
+        y: position.y - velocity.vertical / 100,
+      };
+
+      if (velocity.vertical <= 0) {
+        const platY =
+          this.isPlatformAt(nextPosition.x, nextPosition.y + 1.2) ||
+          this.isPlatformAt(nextPosition.x, position.y + 1.2);
+        if (platY && !commands.jump) {
+          position.y = platY - 1;
+          velocity.vertical = 0;
+          animation.inAir = false;
+          jumpState.canJump = true;
+          jumpState.isJumping = false;
+          jumpState.jumpTime = 0;
         }
       }
     }
@@ -773,6 +811,20 @@ export class CollisionSystem {
     );
   }
 
+  public isPlatformAt(x: number, y: number) {
+    for (const plat of this.entitySystem.getEntitiesWithComponents(Platform)) {
+      const platPostition = plat.getComponent(PositionComponent);
+      const body = plat.getComponent(PhysicsBodyComponent);
+      const platXStart = platPostition.x;
+      const platXEnd = platPostition.x + body.width;
+      const platYstart = platPostition.y;
+      const platYend = platPostition.y + 0.3;
+      if (x > platXStart && x < platXEnd && y >= platYstart && y <= platYend) {
+        return platYstart;
+      }
+    }
+  }
+
   public getBlockAt(
     x: number,
     y: number,
@@ -800,7 +852,8 @@ export class CollisionSystem {
     for (const monster of this.entitySystem.getEntitiesWithComponents(component)) {
       if (
         monster.id === id ||
-        monster.getComponent(HealthComponent).current <= 0 ||
+        (monster.hasComponent(HealthComponent) &&
+          monster.getComponent(HealthComponent).current <= 0) ||
         (exception && monster.hasComponent(exception))
       )
         continue;
@@ -1003,23 +1056,30 @@ export class PositionSystem {
       const position = entity.getComponent(PositionComponent);
       const velocity = entity.getComponent(VelocityComponent);
       const stats = entity.getComponent(MovementStatsComponent);
-      if (velocity.horizontal === 0) {
-        velocity.horizontal = stats.maxHorizontalVelocity;
+
+      if (path.startPosition.x === path.endPosition.x) {
+        velocity.horizontal = 0;
+      } else {
+        if (position.x < path.endPosition.x) {
+          velocity.horizontal = Math.abs(velocity.horizontal);
+        } else if (position.x > path.startPosition.x) {
+          velocity.horizontal = -Math.abs(velocity.horizontal);
+        }
       }
-      if (velocity.vertical === 0) {
-        velocity.vertical = stats.maxUpVelocity;
-      }
-      if (position.x < path.endPosition.x) {
-        velocity.horizontal = Math.abs(velocity.horizontal);
-      } else if (position.x > path.startPosition.x) {
-        velocity.horizontal = -Math.abs(velocity.horizontal);
-      }
-      if (position.y > path.endPosition.y) {
-        console.log(position.y, path.endPosition.y);
-        velocity.vertical = Math.abs(velocity.vertical);
-      } else if (position.y < path.startPosition.y) {
-        console.log(position.y, path.endPosition.y);
-        velocity.vertical = -Math.abs(velocity.vertical);
+      if (path.startPosition.y === path.endPosition.y) {
+        velocity.vertical = 0;
+      } else {
+        if (position.y > path.endPosition.y) {
+          velocity.vertical += stats.upSpeed;
+        } else if (position.y <= path.startPosition.y) {
+          velocity.vertical -= stats.upSpeed;
+        } else if (velocity.vertical > 0 && velocity.vertical < stats.maxUpVelocity) {
+          velocity.vertical += stats.upSpeed;
+        } else if (velocity.vertical < 0 && velocity.vertical > -stats.maxUpVelocity) {
+          velocity.vertical -= stats.upSpeed;
+        } else {
+          velocity.vertical *= 0.8;
+        }
       }
     }
   }
@@ -1130,6 +1190,20 @@ export class StateSystem {
           });
         }
 
+        if (monster.hasComponent(Flying)) {
+          monster.removeComponent(Flying);
+        }
+        if (monster.hasComponent(PathComponent)) {
+          monster.removeComponent(PathComponent);
+        }
+        // if (!monster.hasComponent(CollidableComponent)) {
+        //   console.log("monster is now collidable");
+        //   monster.addComponent(new CollidableComponent());
+        // }
+        if (!monster.hasComponent(JumpStateComponent)) {
+          monster.addComponent(new JumpStateComponent());
+        }
+
         setTimeout(() => {
           this.entitySystem.destroyEntity(monster);
         }, timeAfterDeath.time);
@@ -1174,6 +1248,7 @@ export class RenderSystem {
       AnimationStateComponent,
       VelocityComponent
     )) {
+      if (entity.hasComponent(Flying)) continue;
       const velocity = entity.getComponent(VelocityComponent);
       const animationState = entity.getComponent(AnimationStateComponent);
       const commands = entity.getComponent(InputStateComponent);

@@ -21,6 +21,10 @@ export type entityInLevel = {
   type: keyof typeof entityBlueprints;
   position: { x: number; y: number };
   spawnFromPosition: number;
+  path?: {
+    startPosition: { x: number; y: number };
+    endPosition: { x: number; y: number };
+  };
 };
 
 export type level = {

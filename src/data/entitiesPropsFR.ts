@@ -56,18 +56,16 @@ export const entityBlueprints = {
       () => new Components.PnjComponent(),
       () => new Components.HostileComponent(),
       () => new Components.PositionComponent(0, 12),
-      () => new Components.DisparitionTimeAfterDeath(0),
-      // () => new Components.CollidableComponent(),
+      () => new Components.DisparitionTimeAfterDeath(1000),
       () => new Components.Flying(),
-      () => new Components.PathComponent({ x: 5, y: 8 }, { x: 5, y: 14 }),
+      () => new Components.PathComponent({ x: 0, y: 0 }, { x: 0, y: 0 }),
       () => new Components.VelocityComponent(0, 0),
       () => new Components.PhysicsBodyComponent(1, 1.45),
-      () => new Components.MovementStatsComponent(5, 1.7, 1.5, 20, 20, 20, 50),
+      () => new Components.MovementStatsComponent(5, 0.5, 1.5, 5, 5, 20, 50),
       () => new Components.HealthComponent(1, 1),
       () => new Components.RenderableComponent(sprites[2]),
       () => new Components.InputStateComponent(false, false, false, false, false),
-      () => new Components.AnimationStateComponent(),
-      () => new Components.JumpStateComponent(),
+      () => new Components.AnimationStateComponent(true, false, true),
     ] as const,
 
   carapace: () =>
@@ -193,4 +191,17 @@ export const entityBlueprints = {
     () => new Components.AnimationStateComponent(false, true),
     () => new Components.JumpStateComponent(),
   ],
+
+  platform: () =>
+    [
+      () => new Components.PnjComponent(),
+      () => new Components.Platform(),
+      () => new Components.PositionComponent(0, 12),
+      () => new Components.Flying(),
+      () => new Components.PathComponent({ x: 0, y: 0 }, { x: 0, y: 0 }),
+      () => new Components.VelocityComponent(0, 0),
+      () => new Components.PhysicsBodyComponent(6, 1),
+      () => new Components.MovementStatsComponent(5, 0.3, 1.5, 2, 3, 20, 50),
+      () => new Components.RenderableComponent(sprites[11]),
+    ] as const,
 };
