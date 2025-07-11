@@ -84,9 +84,7 @@ export class Game {
     this.setupControls();
     this.isRunning = true;
     this.startTime = Date.now();
-    SoundManager.getInstance().resetMusic(
-      this.hard ? "../public/sounds/castle.mp3" : "../public/sounds/music.mp3"
-    );
+    SoundManager.getInstance().resetMusic(this.hard ? "/sounds/castle.mp3" : "/sounds/music.mp3");
     SoundManager.getInstance().levelUp.play();
   }
 
@@ -128,9 +126,7 @@ export class Game {
 
     this.isRunning = true;
     this.map.removePause();
-    SoundManager.getInstance().playMusic(
-      this.hard ? "../public/sounds/castle.mp3" : "../public/sounds/music.mp3"
-    );
+    SoundManager.getInstance().playMusic(this.hard ? "/sounds/castle.mp3" : "/sounds/music.mp3");
   }
 
   private updateTime() {
@@ -423,7 +419,7 @@ fill="white"/>
   public spawnCoin = (x: number, y: number) => {
     console.log("coin created");
     const img = document.createElement("img");
-    img.src = "../public/coin.png";
+    img.src = "/coin.png";
     img.className = "coin";
     img.className = "brick";
     img.style.position = "absolute";
@@ -571,7 +567,7 @@ fill="white"/>
     console.log("brick created");
     const img = document.createElement("img");
     document.body.appendChild(img);
-    img.src = "../public/mystery.png";
+    img.src = "/mystery.png";
     img.className = "brick";
     img.style.position = "absolute";
     img.style.zIndex = "200";
@@ -591,7 +587,7 @@ fill="white"/>
       img.remove();
       const brick = document.createElement("img");
       document.body.appendChild(brick);
-      brick.src = "../public/brick.png";
+      brick.src = "/brick.png";
       brick.className = "brick";
       brick.style.position = "absolute";
       brick.style.zIndex = "200";

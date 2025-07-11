@@ -18,18 +18,18 @@ export class SoundManager {
   private _volume: number = 0.5; // valeur par défaut (100%)
 
   private constructor() {
-    this.coin = new Audio("../public/sounds/coin.wav");
-    this.death = new Audio("../public/sounds/death.wav");
-    this.fireball = new Audio("../public/sounds/fireball.wav");
-    this.jumpOnMonster = new Audio("../public/sounds/jump-on-monster.wav");
-    this.jump = new Audio("../public/sounds/jump.wav");
-    this.levelUp = new Audio("../public/sounds/level-up.wav");
-    this.timeOut = new Audio("../public/sounds/time-out.wav");
-    this.pause = new Audio("../public/sounds/pause.wav");
-    this.powerDown = new Audio("../public/sounds/power-down.wav");
-    this.powerUpAppear = new Audio("../public/sounds/powerup_appears.wav");
-    this.powerUp = new Audio("../public/sounds/powerup.wav");
-    this.win = new Audio("../public/sounds/win.wav");
+    this.coin = new Audio("/sounds/coin.wav");
+    this.death = new Audio("/sounds/death.wav");
+    this.fireball = new Audio("/sounds/fireball.wav");
+    this.jumpOnMonster = new Audio("/sounds/jump-on-monster.wav");
+    this.jump = new Audio("/sounds/jump.wav");
+    this.levelUp = new Audio("/sounds/level-up.wav");
+    this.timeOut = new Audio("/sounds/time-out.wav");
+    this.pause = new Audio("/sounds/pause.wav");
+    this.powerDown = new Audio("/sounds/power-down.wav");
+    this.powerUpAppear = new Audio("/sounds/powerup_appears.wav");
+    this.powerUp = new Audio("/sounds/powerup.wav");
+    this.win = new Audio("/sounds/win.wav");
 
     this.applyVolumeToAll(); // Appliquer le volume initial
   }
