@@ -6,6 +6,7 @@ import {
   DropafterDeath,
   FlagComponent,
   FlagReached,
+  Flying,
   HealthComponent,
   HostileComponent,
   InputStateComponent,
@@ -13,6 +14,7 @@ import {
   JumpStateComponent,
   MonsterKiller,
   MovementStatsComponent,
+  PathComponent,
   PhysicsBodyComponent,
   PlayableComponent,
   PnjComponent,
@@ -250,12 +252,20 @@ export class SpawnSystem {
   spawnMonsters() {
     for (const entity of this.entitySystem.getEntitiesWithComponents(PlayableComponent)) {
       const position = entity.getComponent(PositionComponent);
+
       this.level.entities.forEach((e) => {
         if (e.spawnFromPosition <= position.x) {
           this.level.entities = this.level.entities.filter((ent) => ent !== e);
-          this.entitySystem.createEntity(e.type, {
-            position: { x: e.position.x, y: e.position.y },
-          });
+          if (entity.hasComponent(PathComponent)) {
+            const p = entity.getComponent(PathComponent);
+            this.entitySystem.createEntity(e.type, {
+              position: { x: p.startPosition.x, y: p.startPosition.y },
+            });
+          } else {
+            this.entitySystem.createEntity(e.type, {
+              position: { x: e.position.x, y: e.position.y },
+            });
+          }
         }
       });
     }
@@ -442,7 +452,6 @@ export class CollisionSystem {
               });
             } else if (block[2] === 2) {
               SoundManager.getInstance().powerUpAppear.play();
-              console.log("flower created");
               this.entitySystem.createEntity("flower", {
                 position: { x: block[0], y: block[1] - 1 },
               });
@@ -485,7 +494,8 @@ export class CollisionSystem {
   private pnjCollisions() {
     for (const entity of this.entitySystem.getEntitiesWithComponents(
       PnjComponent,
-      VelocityComponent
+      VelocityComponent,
+      CollidableComponent
     )) {
       const position = entity.getComponent(PositionComponent);
       const velocity = entity.getComponent(VelocityComponent);
@@ -867,6 +877,7 @@ export class PositionSystem {
   reachTime: number | null = null;
 
   update() {
+    this.makeFlyingPath();
     this.calculatePositionFromVelocity();
     this.lookIfFlagIsReached();
     this.lookIfGameFinished();
@@ -985,6 +996,33 @@ export class PositionSystem {
       }
     }
   }
+
+  private makeFlyingPath() {
+    for (const entity of this.entitySystem.getEntitiesWithComponents(Flying, PathComponent)) {
+      const path = entity.getComponent(PathComponent);
+      const position = entity.getComponent(PositionComponent);
+      const velocity = entity.getComponent(VelocityComponent);
+      const stats = entity.getComponent(MovementStatsComponent);
+      if (velocity.horizontal === 0) {
+        velocity.horizontal = stats.maxHorizontalVelocity;
+      }
+      if (velocity.vertical === 0) {
+        velocity.vertical = stats.maxUpVelocity;
+      }
+      if (position.x < path.endPosition.x) {
+        velocity.horizontal = Math.abs(velocity.horizontal);
+      } else if (position.x > path.startPosition.x) {
+        velocity.horizontal = -Math.abs(velocity.horizontal);
+      }
+      if (position.y > path.endPosition.y) {
+        console.log(position.y, path.endPosition.y);
+        velocity.vertical = Math.abs(velocity.vertical);
+      } else if (position.y < path.startPosition.y) {
+        console.log(position.y, path.endPosition.y);
+        velocity.vertical = -Math.abs(velocity.vertical);
+      }
+    }
+  }
 }
 
 export class StateSystem {
@@ -1038,7 +1076,7 @@ export class StateSystem {
         sprite.imageElement.src = sprite.sprite.default;
         sprite.imageElement.height =
           GameManager.getInstance().blockSize * GameManager.getInstance().zoom * 2;
-      } else if (health.current <= 1 && dimensions.height > 1) {
+      } else if (health.current <= 1) {
         if (player.hasComponent(Shooter)) {
           sprite.sprite = sprites[9];
         } else {

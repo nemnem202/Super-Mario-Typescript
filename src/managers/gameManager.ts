@@ -5,6 +5,7 @@ import { levels } from "../data/levels";
 import { SpriteManager } from "./spriteManager";
 import { sprites } from "../data/sprites";
 import { uiAssets } from "../data/uiAssets";
+import type { playerState } from "../data/types";
 
 export class GameManager {
   private static _instance: GameManager;
@@ -15,6 +16,8 @@ export class GameManager {
   public top = 50;
   public blockSize = 16;
   public zoom = 2;
+
+  private playerState: playerState | null = null;
 
   private constructor() {}
 
@@ -43,13 +46,14 @@ export class GameManager {
   }
 
   public returnToMainMenu(): void {
+    this.playerState = null;
     this.cleanupCurrentGame();
     GameMenus.getInstance().showMainMenu();
   }
 
   async loadGame(level: number, score: number = 0) {
     this.cleanupCurrentGame();
-    this.game = new Game(this.copyOf(levels[level]), this.hardcoreMode, score);
+    this.game = new Game(this.copyOf(levels[level]), this.hardcoreMode, score, this.playerState);
     await this.game.init();
     if (this.game) {
       this.game.run();
@@ -57,6 +61,7 @@ export class GameManager {
   }
 
   public restart(): void {
+    this.playerState = null;
     this.loadGame(this.currentLevel);
   }
 
@@ -65,7 +70,9 @@ export class GameManager {
     if (levels[nextLevelIndex]) {
       this.currentLevel = nextLevelIndex;
       const score = this.game?.score;
-      console.log("score", score);
+      if (this.game) {
+        this.playerState = this.game.getPlayerState();
+      }
       this.loadGame(this.currentLevel, score);
     } else {
       this.returnToMainMenu();

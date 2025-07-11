@@ -51,6 +51,25 @@ export const entityBlueprints = {
       () => new Components.DropafterDeath("carapace"),
     ] as const,
 
+  flyingTurtle: () =>
+    [
+      () => new Components.PnjComponent(),
+      () => new Components.HostileComponent(),
+      () => new Components.PositionComponent(0, 12),
+      () => new Components.DisparitionTimeAfterDeath(0),
+      // () => new Components.CollidableComponent(),
+      () => new Components.Flying(),
+      () => new Components.PathComponent({ x: 5, y: 8 }, { x: 5, y: 14 }),
+      () => new Components.VelocityComponent(0, 0),
+      () => new Components.PhysicsBodyComponent(1, 1.45),
+      () => new Components.MovementStatsComponent(5, 1.7, 1.5, 20, 20, 20, 50),
+      () => new Components.HealthComponent(1, 1),
+      () => new Components.RenderableComponent(sprites[2]),
+      () => new Components.InputStateComponent(false, false, false, false, false),
+      () => new Components.AnimationStateComponent(),
+      () => new Components.JumpStateComponent(),
+    ] as const,
+
   carapace: () =>
     [
       () => new Components.PnjComponent(),

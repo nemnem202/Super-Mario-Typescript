@@ -53,3 +53,8 @@ export type spriteObject = {
   turningBack?: string;
   walkingFrames?: string[];
 };
+
+export type playerState = {
+  lifes: number;
+  hasShooterMode: boolean;
+};

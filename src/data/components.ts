@@ -174,6 +174,16 @@ export class InvincibleComponent {
   }
 }
 
+export class PathComponent {
+  startPosition: { x: number; y: number };
+  endPosition: { x: number; y: number };
+
+  constructor(startPosition: { x: number; y: number }, endPosition: { x: number; y: number }) {
+    this.startPosition = startPosition;
+    this.endPosition = endPosition;
+  }
+}
+
 export class PlayableComponent {}
 
 export class FlagComponent {}
@@ -195,3 +205,5 @@ export class TheFloorIsLava {}
 export class TheWallsAreLava {}
 
 export class Shooter {}
+
+export class Flying {}

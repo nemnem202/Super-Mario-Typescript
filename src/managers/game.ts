@@ -9,8 +9,13 @@ import {
   type Entity,
 } from "../ecs";
 import { GameManager } from "./gameManager";
-import type { commands, level } from "../data/types";
-import { HealthComponent, PlayableComponent, RenderableComponent } from "../data/components";
+import type { commands, level, playerState } from "../data/types";
+import {
+  HealthComponent,
+  PlayableComponent,
+  RenderableComponent,
+  Shooter,
+} from "../data/components";
 import { SoundManager } from "./soundManager";
 
 export class Game {
@@ -53,7 +58,7 @@ export class Game {
   rightButton: HTMLButtonElement | null = null;
   jumpButton: HTMLButtonElement | null = null;
 
-  constructor(level: level, hard: boolean, score: number) {
+  constructor(level: level, hard: boolean, score: number, playerState: playerState | null) {
     this.hard = hard;
     this.level = level;
     this.timer = hard ? Math.ceil(level.timer / 2) + 1 : level.timer + 1;
@@ -62,6 +67,17 @@ export class Game {
     this.player = this.entitySystem.createEntity("mario", {
       position: { x: this.level.spawn.x, y: this.level.spawn.y },
     });
+    if (playerState) {
+      const health = this.player.getComponent(HealthComponent);
+      if (health) {
+        health.current = playerState.lifes;
+        // Assurez-vous que la vie max est au moins égale à la vie actuelle
+        health.max = Math.max(health.max, playerState.lifes);
+      }
+      if (playerState.hasShooterMode) {
+        this.player.addComponent(new Shooter());
+      }
+    }
     this.map = new GameMap(this.level, this.leftButton, this.rightButton, this.jumpButton, this);
     this.inputSystem = new InputSystem(this.entitySystem, this);
     this.spawnSystem = new SpawnSystem(this.entitySystem, this.level, hard);
@@ -127,6 +143,15 @@ export class Game {
     this.isRunning = true;
     this.map.removePause();
     SoundManager.getInstance().playMusic(this.hard ? "/sounds/castle.mp3" : "/sounds/music.mp3");
+  }
+
+  public getPlayerState(): playerState {
+    const health = this.player.getComponent(HealthComponent);
+    const hasShooter = this.player.hasComponent(Shooter);
+    return {
+      lifes: health ? health.current : 1, // Valeur par défaut si le composant n'existe pas
+      hasShooterMode: hasShooter,
+    };
   }
 
   private updateTime() {
@@ -230,7 +255,6 @@ export class Game {
     document.getElementById("scoreAndTime")?.remove();
     document.querySelectorAll(".brick").forEach((e) => {
       e.remove();
-      console.log("brick removed");
     });
 
     document.getElementById("soundButton")?.remove();
@@ -417,7 +441,6 @@ fill="white"/>
   };
 
   public spawnCoin = (x: number, y: number) => {
-    console.log("coin created");
     const img = document.createElement("img");
     img.src = "/coin.png";
     img.className = "coin";
@@ -589,7 +612,6 @@ fill="white"/>
   };
 
   public mysteryBlockHitAnimation = (x: number, y: number) => {
-    console.log("brick created");
     const img = document.createElement("img");
     document.body.appendChild(img);
     img.src = "/mystery.png";
