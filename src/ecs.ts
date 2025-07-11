@@ -688,7 +688,8 @@ export class CollisionSystem {
           dimensions.width,
           1,
           HostileComponent
-        )
+        ) &&
+        velocity.vertical <= 0
       ) {
         jumpState.isJumping = true;
         jumpState.jumpTime++;
