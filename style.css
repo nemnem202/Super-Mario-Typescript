@@ -197,6 +197,26 @@ body {
   border: 2px solid white;
   margin-top: 30px;
   margin-bottom: 30px;
+  display: grid;
+  /* padding: 10px; */
+  gap: 10px;
+}
+
+.inputTutoLine {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 10px;
+  padding: 10px;
+}
+
+.inputTuto {
+  border: 2px solid white;
+  padding: 5px;
+}
+
+.inputsName {
+  display: flex;
 }
 
 @media (max-width: 500px) {
@@ -215,5 +235,23 @@ body {
 @media (max-height: 650px) {
   .buttonsContainer {
     display: none;
+  }
+}
+
+@media (max-width: 765px) {
+  #tuto {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    height: max-content;
+  }
+  .inputTutoLine {
+    justify-content: start !important;
+  }
+}
+
+@media (max-width: 443px) {
+  #tuto {
+    font-size: 80%;
   }
 }

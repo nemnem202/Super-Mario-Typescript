@@ -103,8 +103,62 @@ export class GameMenus {
   private loadTuto(menu: HTMLDivElement) {
     const tuto = document.createElement("div");
     tuto.id = "tuto";
+    const leftInputsTuto = [this.inputTuto("Q"), this.inputTuto("↑", -90)];
+    const rightInputsTuto = [this.inputTuto("D"), this.inputTuto("↑", 90)];
+    const jumpInputsTuto = [this.inputTuto("Z"), this.inputTuto("↑"), this.inputTuto("SPACE")];
+    const downInputsTuto = [this.inputTuto("S"), this.inputTuto("↓")];
+    const shootInputsTuto = [this.inputTuto("ENTER")];
+    const pauseInputsTuto = [this.inputTuto("P")];
+    const leftLine = this.inputTutoLine(leftInputsTuto, "LEFT", 1, 1);
+    const rightLine = this.inputTutoLine(rightInputsTuto, "RIGHT", 2, 1);
+    const jumpLine = this.inputTutoLine(jumpInputsTuto, "JUMP", 1, 2);
+    const downLine = this.inputTutoLine(downInputsTuto, "DOWN", 3, 1);
+    const shootLine = this.inputTutoLine(shootInputsTuto, "SHOOT", 2, 2);
+    const pauseLine = this.inputTutoLine(pauseInputsTuto, "PAUSE", 3, 2);
+    tuto.appendChild(leftLine);
+    tuto.appendChild(rightLine);
+    tuto.appendChild(jumpLine);
+    tuto.appendChild(downLine);
+    tuto.appendChild(shootLine);
+    tuto.appendChild(pauseLine);
     menu.appendChild(tuto);
   }
+
+  private inputTuto = (string: string, rotation: number = 0): HTMLDivElement => {
+    const inputTuto = document.createElement("div");
+    inputTuto.innerText = string;
+    inputTuto.className = "inputTuto";
+    inputTuto.style.transform = `rotate(${rotation}deg)`;
+    return inputTuto;
+  };
+
+  private inputTutoLine = (
+    array: HTMLDivElement[],
+    string: string,
+    gridRow: number,
+    gridColumn: number
+  ): HTMLDivElement => {
+    const inputTutoLine = document.createElement("div");
+    inputTutoLine.className = "inputTutoLine";
+    inputTutoLine.style.gridRow = String(gridRow);
+    inputTutoLine.style.gridColumn = String(gridColumn);
+    if (gridColumn === 2) {
+      inputTutoLine.style.justifyContent = "end";
+    }
+    array.forEach((i, index) => {
+      inputTutoLine.appendChild(i);
+      if (index < array.length - 1) {
+        const slash = document.createElement("span");
+        slash.textContent = "/";
+        inputTutoLine.appendChild(slash);
+      }
+    });
+    const name = document.createElement("span");
+    name.textContent = " : " + string;
+    name.className = "inputsName";
+    inputTutoLine.appendChild(name);
+    return inputTutoLine;
+  };
 
   private loadHardButton(menu: HTMLDivElement) {
     const hardcoreModeContainer = document.createElement("div");
