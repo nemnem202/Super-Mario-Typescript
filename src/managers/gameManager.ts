@@ -26,6 +26,7 @@ export class GameManager {
   }
 
   async init() {
+    document.getElementById("modal")?.remove();
     GameMenus.getInstance().showLoadingScreen();
 
     try {

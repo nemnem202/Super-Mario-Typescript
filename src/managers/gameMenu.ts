@@ -43,7 +43,6 @@ export class GameMenus {
     document.body.appendChild(menu);
     this.menuContainer = menu;
   }
-
   private loadButtons(menu: HTMLDivElement) {
     levels.forEach((l) => {
       const button = document.createElement("button");
