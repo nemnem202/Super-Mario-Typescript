@@ -169,7 +169,7 @@ export class InputSystem {
       HealthComponent,
       VelocityComponent
     )) {
-      if (entity.hasComponent(Flying)) continue;
+      if (entity.hasComponent(PathComponent)) continue;
       const inputs = entity.getComponent(InputStateComponent);
       const velocity = entity.getComponent(VelocityComponent);
       const movementStats = entity.getComponent(MovementStatsComponent);
@@ -197,7 +197,10 @@ export class InputSystem {
   }
 
   private updateJumpState() {
-    for (const entity of this.entitySystem.getEntitiesWithComponents(JumpStateComponent)) {
+    for (const entity of this.entitySystem.getEntitiesWithComponents(
+      JumpStateComponent,
+      VelocityComponent
+    )) {
       const movementStats = entity.getComponent(MovementStatsComponent);
       const velocity = entity.getComponent(VelocityComponent);
       const commands = entity.getComponent(InputStateComponent);
@@ -209,7 +212,7 @@ export class InputSystem {
         commands.jump &&
         jumpState.jumpTime < movementStats.maxJumpTime
       ) {
-        if (jumpState.jumpTime === 0) {
+        if (jumpState.jumpTime === 0 && entity.hasComponent(PlayableComponent)) {
           SoundManager.getInstance().playSound(SoundManager.getInstance().jump);
         }
         jumpState.isJumping = true;
@@ -498,7 +501,7 @@ export class CollisionSystem {
 
   private playerToPlatformCollision() {
     for (const entity of this.entitySystem.getEntitiesWithComponents(
-      PlayableComponent,
+      VelocityComponent,
       CollidableComponent
     )) {
       const position = entity.getComponent(PositionComponent);
@@ -508,7 +511,7 @@ export class CollisionSystem {
       const jumpState = entity.getComponent(JumpStateComponent);
       const commands = entity.getComponent(InputStateComponent);
 
-      let nextPosition = {
+      const nextPosition = {
         x: position.x - velocity.horizontal / 100,
         y: position.y - velocity.vertical / 100,
       };
@@ -524,6 +527,17 @@ export class CollisionSystem {
           jumpState.canJump = true;
           jumpState.isJumping = false;
           jumpState.jumpTime = 0;
+
+          const plat = this.getPlatformAt(nextPosition.x, nextPosition.y + 1.2);
+          const plat2 = this.getPlatformAt(nextPosition.x, position.y + 1.2);
+
+          if (plat && !commands.left && !commands.right) {
+            const platVelocity = plat.getComponent(VelocityComponent);
+            velocity.horizontal = platVelocity.horizontal;
+          } else if (plat2 && !commands.left && !commands.right) {
+            const platVelocity = plat2.getComponent(VelocityComponent);
+            velocity.horizontal = platVelocity.horizontal;
+          }
         }
       }
     }
@@ -815,14 +829,43 @@ export class CollisionSystem {
     for (const plat of this.entitySystem.getEntitiesWithComponents(Platform)) {
       const platPostition = plat.getComponent(PositionComponent);
       const body = plat.getComponent(PhysicsBodyComponent);
-      const platXStart = platPostition.x;
-      const platXEnd = platPostition.x + body.width;
-      const platYstart = platPostition.y;
-      const platYend = platPostition.y + 0.3;
+      const velocity = plat.getComponent(VelocityComponent);
+
+      const nextPlatPosition = {
+        x: platPostition.x - velocity.horizontal / 100,
+        y: platPostition.y - velocity.vertical / 100,
+      };
+
+      const platXStart = nextPlatPosition.x - 1;
+      const platXEnd = nextPlatPosition.x + body.width;
+      const platYstart = nextPlatPosition.y;
+      const platYend = nextPlatPosition.y + 0.3;
       if (x > platXStart && x < platXEnd && y >= platYstart && y <= platYend) {
         return platYstart;
       }
     }
+  }
+
+  public getPlatformAt(x: number, y: number): Entity | null {
+    for (const plat of this.entitySystem.getEntitiesWithComponents(Platform)) {
+      const platPostition = plat.getComponent(PositionComponent);
+      const body = plat.getComponent(PhysicsBodyComponent);
+      const velocity = plat.getComponent(VelocityComponent);
+
+      const nextPlatPosition = {
+        x: platPostition.x - velocity.horizontal / 100,
+        y: platPostition.y - velocity.vertical / 100,
+      };
+
+      const platXStart = nextPlatPosition.x - 1;
+      const platXEnd = nextPlatPosition.x + body.width;
+      const platYstart = nextPlatPosition.y;
+      const platYend = nextPlatPosition.y + 0.3;
+      if (x > platXStart && x < platXEnd && y >= platYstart && y <= platYend) {
+        return plat;
+      }
+    }
+    return null;
   }
 
   public getBlockAt(
@@ -1051,7 +1094,7 @@ export class PositionSystem {
   }
 
   private makeFlyingPath() {
-    for (const entity of this.entitySystem.getEntitiesWithComponents(Flying, PathComponent)) {
+    for (const entity of this.entitySystem.getEntitiesWithComponents(PathComponent)) {
       const path = entity.getComponent(PathComponent);
       const position = entity.getComponent(PositionComponent);
       const velocity = entity.getComponent(VelocityComponent);
@@ -1059,9 +1102,7 @@ export class PositionSystem {
 
       if (path.startPosition.x === path.endPosition.x) {
         velocity.horizontal = 0;
-        console.log("oeoe");
       } else {
-        console.log("nono");
         if (position.x > path.endPosition.x) {
           velocity.horizontal += stats.sidesSpeed;
         } else if (position.x <= path.startPosition.x) {
@@ -1205,10 +1246,6 @@ export class StateSystem {
         if (monster.hasComponent(PathComponent)) {
           monster.removeComponent(PathComponent);
         }
-        // if (!monster.hasComponent(CollidableComponent)) {
-        //   console.log("monster is now collidable");
-        //   monster.addComponent(new CollidableComponent());
-        // }
         if (!monster.hasComponent(JumpStateComponent)) {
           monster.addComponent(new JumpStateComponent());
         }
@@ -1270,13 +1307,27 @@ export class RenderSystem {
 
       let walking: boolean = false;
 
-      if (Math.abs(velocity.horizontal) > 0.4 && !animationState.inAir && !turningBack) {
+      if (
+        Math.abs(velocity.horizontal) > 0.4 &&
+        !animationState.inAir &&
+        !turningBack &&
+        (commands.left || commands.right)
+      ) {
         walking = true;
+      }
+
+      // if (entity.id.split("_")[0] === "turtle") {
+      //   console.log("walking: ", walking, "direction", direction, entity.id);
+      // }
+
+      if (entity.hasComponent(HostileComponent)) {
+        animationState.isWalking = true;
+      } else {
+        animationState.isWalking = walking;
       }
 
       animationState.isTurningBack = turningBack && !animationState.inAir;
       animationState.direction = direction;
-      animationState.isWalking = walking;
     }
   }
 

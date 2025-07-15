@@ -26,6 +26,7 @@ export const sprites: spriteObject[] = [
     name: "turtle",
     default: "/sprites/tortue/default.png",
     dead: "/sprites/mechant-bouboule/dead.png",
+    walkingFrames: ["/sprites/tortue/default.png", "/sprites/tortue/walking2.png"],
   },
   {
     name: "carapace",
@@ -98,5 +99,11 @@ export const sprites: spriteObject[] = [
     name: "platform",
     default: "/sprites/platform/default.png",
     dead: "/sprites/platform/default.png",
+  },
+  {
+    name: "flying-turtle",
+    default: "/sprites/flyingTurtle/default.png",
+    dead: "/sprites/carapace/default.png",
+    walkingFrames: ["/sprites/flyingTurtle/default.png", "/sprites/flyingTurtle/walking2.png"],
   },
 ];

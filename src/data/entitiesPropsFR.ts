@@ -36,17 +36,18 @@ export const entityBlueprints = {
   turtle: () =>
     [
       () => new Components.PnjComponent(),
+      () => new Components.PathComponent({ x: 0, y: 0 }, { x: 0, y: 0 }),
       () => new Components.HostileComponent(),
       () => new Components.PositionComponent(0, 12),
       () => new Components.DisparitionTimeAfterDeath(0),
       () => new Components.CollidableComponent(),
       () => new Components.VelocityComponent(0, 0),
       () => new Components.PhysicsBodyComponent(1, 1.45),
-      () => new Components.MovementStatsComponent(5, 1.7, 1.5, 10, 10, 20, 50),
+      () => new Components.MovementStatsComponent(5, 1.7, 1.5, 3, 10, 20, 50),
       () => new Components.HealthComponent(1, 1),
       () => new Components.RenderableComponent(sprites[2]),
       () => new Components.InputStateComponent(false, false, true, false, false),
-      () => new Components.AnimationStateComponent(),
+      () => new Components.AnimationStateComponent(undefined, undefined, true),
       () => new Components.JumpStateComponent(),
       () => new Components.DropafterDeath("carapace"),
     ] as const,
@@ -63,9 +64,9 @@ export const entityBlueprints = {
       () => new Components.PhysicsBodyComponent(1, 1.45),
       () => new Components.MovementStatsComponent(0.5, 0.5, 5, 5, 5, 20, 50),
       () => new Components.HealthComponent(1, 1),
-      () => new Components.RenderableComponent(sprites[2]),
+      () => new Components.RenderableComponent(sprites[12]),
       () => new Components.InputStateComponent(false, false, false, false, false),
-      () => new Components.AnimationStateComponent(true, false, true),
+      () => new Components.AnimationStateComponent(false, false, true),
     ] as const,
 
   carapace: () =>
