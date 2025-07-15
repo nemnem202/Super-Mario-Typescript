@@ -58,6 +58,10 @@ export class Game {
   rightButton: HTMLButtonElement | null = null;
   jumpButton: HTMLButtonElement | null = null;
 
+  private lastTime = performance.now();
+  private accumulator = 0;
+  private readonly timestep = 1000 / 60;
+
   constructor(level: level, hard: boolean, score: number, playerState: playerState | null) {
     this.hard = hard;
     this.level = level;
@@ -104,19 +108,33 @@ export class Game {
     SoundManager.getInstance().levelUp.play();
   }
 
-  public run() {
-    if (this.isRunning) {
-      this.updateTime();
-      this.map.centerCamera();
-      this.inputSystem.update();
-      this.spawnSystem.update();
-      this.collisionSystem.update();
-      this.positionSystem.update();
-      this.stateSystem.update();
-      this.renderSystem.update();
+  public run(currentTime = performance.now()) {
+    if (!this.isRunning) return;
+
+    const delta = currentTime - this.lastTime;
+    this.lastTime = currentTime;
+    this.accumulator += delta;
+
+    // Limiter le nombre max d’updates par frame (anti-freeze en cas de gros lag)
+    const maxUpdatesPerFrame = 5;
+    let updates = 0;
+
+    while (this.accumulator >= this.timestep && updates < maxUpdatesPerFrame) {
+      this.updateTime(); // Advance internal clock
+      this.map.centerCamera(); // Handle camera movement
+      this.inputSystem.update(); // Process input
+      this.spawnSystem.update(); // Spawning logic
+      this.collisionSystem.update(); // Collision checks
+      this.positionSystem.update(); // Entity movement
+      this.stateSystem.update(); // State machines, AI...
+
+      this.accumulator -= this.timestep;
+      updates++;
     }
 
-    this.animationFrameId = requestAnimationFrame(() => this.run());
+    this.renderSystem.update(); // Toujours à chaque frame (fluide même à 120Hz)
+
+    this.animationFrameId = requestAnimationFrame((t) => this.run(t));
   }
 
   public stop() {

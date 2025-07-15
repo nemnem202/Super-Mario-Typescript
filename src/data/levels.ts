@@ -1172,7 +1172,7 @@ export const levels: level[] = [
         path: { startPosition: { x: 74, y: 2 }, endPosition: { x: 74, y: 11 } },
       },
       {
-        type: "turtle",
+        type: "turtleWithPath",
         position: {
           x: 10,
           y: 12,
@@ -1206,7 +1206,7 @@ export const levels: level[] = [
         spawnFromPosition: 67,
       },
       {
-        type: "turtle",
+        type: "turtleWithPath",
         position: {
           x: 10,
           y: 12,
@@ -1224,7 +1224,7 @@ export const levels: level[] = [
         path: { startPosition: { x: 114, y: 3 }, endPosition: { x: 114, y: 11 } },
       },
       {
-        type: "turtle",
+        type: "turtleWithPath",
         position: {
           x: 10,
           y: 12,
